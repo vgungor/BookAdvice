@@ -601,16 +601,16 @@ $booksJson = json_encode($books);
             <div class="header-section">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2><i class="fas fa-book"></i> Book Library</h2>
+                        <h2><i class="fas fa-book"></i> EGE KÜTÜPHANE</h2>
                         <p class="mb-0">
-                            Welcome, <?php echo htmlspecialchars($_SESSION['user_email']); ?>
+                            Merhaba, <?php echo htmlspecialchars($_SESSION['user_email']); ?>
                             <?php if ($isAdmin): ?>
                                 <span class="admin-badge"><i class="fas fa-crown"></i> Admin</span>
                             <?php endif; ?>
                         </p>
                     </div>
                     <a href="logout.php" class="btn logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                        <i class="fas fa-sign-out-alt"></i> Çıkış
                     </a>
                 </div>
             </div>
@@ -619,7 +619,7 @@ $booksJson = json_encode($books);
             
             <!-- Book Suggestion Form -->
             <div class="suggest-section">
-                <h4 class="mb-3"><i class="fas fa-lightbulb"></i> Suggest a Book -   Please "Search" the book before suggesting, It may exist in the records</h4>
+                <h4 class="mb-3"><i class="fas fa-lightbulb"></i> BİR KİTAP ÖNERİN -   Lütfen öneri öncesinde kitap adını listeden kontrol edin.</h4>
                 
                 <?php if ($successMessage): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -644,13 +644,13 @@ $booksJson = json_encode($books);
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <div class="form-group">
-                                <label for="book_title"><i class="fas fa-book"></i> Book Name *</label>
+                                <label for="book_title"><i class="fas fa-book"></i> Kitap Adı *</label>
                                 <input 
                                     type="text" 
                                     class="form-control" 
                                     id="book_title" 
                                     name="book_title" 
-                                    placeholder="Enter book title"
+                                    placeholder="Kitap Adı giriniz (Boş olamaz)"
                                     value="<?php echo isset($_POST['book_title']) && $errorMessage ? htmlspecialchars($_POST['book_title']) : ''; ?>"
                                     required
                                 />
@@ -658,13 +658,13 @@ $booksJson = json_encode($books);
                         </div>
                         <div class="col-md-6 col-12">
                             <div class="form-group">
-                                <label for="book_author"><i class="fas fa-user-edit"></i> Author *</label>
+                                <label for="book_author"><i class="fas fa-user-edit"></i> Yazar(lar) *</label>
                                 <input 
                                     type="text" 
                                     class="form-control" 
                                     id="book_author" 
                                     name="book_author" 
-                                    placeholder="Enter at least one author name"
+                                    placeholder="Yazar adı/adlarını giriniz (Boş olamaz)"
                                     value="<?php echo isset($_POST['book_author']) && $errorMessage ? htmlspecialchars($_POST['book_author']) : ''; ?>"
                                 />
                             </div>
@@ -672,7 +672,7 @@ $booksJson = json_encode($books);
                         <div class="col-12">
                             <div class="form-group mb-0">
                                 <button type="submit" name="suggest_book" class="btn suggest-btn btn-block">
-                                    <i class="fas fa-plus-circle"></i> Advise Book
+                                    <i class="fas fa-plus-circle"></i> Öneri Listesine Kaydet
                                 </button>
                             </div>
                         </div>
@@ -683,7 +683,7 @@ $booksJson = json_encode($books);
                         <!-- Search Section (only shown if more than 10 books) -->
             <?php if ($showSearch): ?>
             <div class="search-section">
-                <h4 class="mb-3"><i class="fas fa-search search-icon"></i> Search Books</h4>
+                <h4 class="mb-3"><i class="fas fa-search search-icon"></i> Kitap Ara</h4>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-white border-right-0" style="border-radius: 25px 0 0 25px;">
@@ -694,14 +694,14 @@ $booksJson = json_encode($books);
                         type="text" 
                         class="form-control border-left-0" 
                         id="searchInput" 
-                        placeholder="Search by book name or author..."
+                        placeholder="Kitap veya Yazar adı ile arama yapılabilir..."
                         style="border-radius: 0 25px 25px 0;"
                     />
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="search-results-info" id="searchResults"></div>
                     <button class="clear-search-btn" id="clearSearch" style="display: none;">
-                        <i class="fas fa-times"></i> Clear Search
+                        <i class="fas fa-times"></i> Temizle
                     </button>
                 </div>
             </div>
@@ -710,13 +710,13 @@ $booksJson = json_encode($books);
             <?php if (!empty($books)): ?>
             <div class="books-container">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3>Available Books (<span id="bookCount"><?php echo count($books); ?></span>)</h3>
+                    <h3>Önerilen Kitaplar (<span id="bookCount"><?php echo count($books); ?></span>)</h3>
                     <div class="view-toggle">
                         <a href="?view=cards" class="btn view-btn <?php echo $viewMode === 'cards' ? 'active' : ''; ?>">
-                            <i class="fas fa-th-large"></i> Cards
+                            <i class="fas fa-th-large"></i> Kart olarak listele
                         </a>
                         <a href="?view=table" class="btn view-btn <?php echo $viewMode === 'table' ? 'active' : ''; ?>">
-                            <i class="fas fa-table"></i> Table
+                            <i class="fas fa-table"></i> Tablo olarak göster
                         </a>
                     </div>
                 </div>
@@ -727,14 +727,14 @@ $booksJson = json_encode($books);
                         <table class="table table-books table-hover">
                             <thead>
                                 <tr>
-                                    <th>Cover</th>
-                                    <th>Book Name</th>
-                                    <th>Author(s)</th>
-                                    <th>Advised By</th>
-                                    <th>Year</th>
-                                    <th>Genre</th>
+                                    <th>Kapak</th>
+                                    <th>Kitap Adı</th>
+                                    <th>Yazar(lar)</th>
+                                    <th>Öneren</th>
+                                    <!-- <th>Basım Yılı</th>
+                                    <th>Tür</th> -->
                                     <?php if ($isAdmin): ?>
-                                        <th>Action</th>
+                                        <th></th>
                                     <?php endif; ?>
                                 </tr>
                             </thead>
@@ -765,7 +765,7 @@ $booksJson = json_encode($books);
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
+                                        <!-- <td>
                                             <?php 
                                                 if (isset($book['year'])) {
                                                     echo htmlspecialchars($book['year']);
@@ -780,7 +780,7 @@ $booksJson = json_encode($books);
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
-                                        </td>
+                                        </td> -->
                                         <?php if ($isAdmin): ?>
                                             <td>
                                                 <form method="POST" action="books.php?view=table" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this book?');">
@@ -821,7 +821,7 @@ $booksJson = json_encode($books);
                                         <i class="fas fa-user-edit"></i> 
                                         <?php 
                                             if (!empty($book['author'])) {
-                                                echo 'by ' . htmlspecialchars($book['author']);
+                                                echo '' . htmlspecialchars($book['author']);
                                             } else {
                                                 echo '<em>Author not specified</em>';
                                             }
@@ -829,7 +829,7 @@ $booksJson = json_encode($books);
                                     </div>
                                     <div class="book-details">
                                         <?php if (isset($book['year'])): ?>
-                                            <i class="fas fa-calendar-alt"></i> Published: <?php echo htmlspecialchars($book['year']); ?>
+                                            <i class="fas fa-calendar-alt"></i> Yayıncı: <?php echo htmlspecialchars($book['year']); ?>
                                         <?php endif; ?>
                                         
                                         <?php if (isset($book['genre'])): ?>
@@ -838,7 +838,7 @@ $booksJson = json_encode($books);
                                         
                                         <?php if (isset($book['advicer'])): ?>
                                             <br>
-                                            <i class="fas fa-user-check"></i> Advised by: 
+                                            <i class="fas fa-user-check"></i> Öneren: 
                                             <span class="badge-advicer"><?php echo htmlspecialchars($book['advicer']); ?></span>
                                         <?php endif; ?>
                                     </div>
@@ -851,8 +851,8 @@ $booksJson = json_encode($books);
             <?php else: ?>
                 <div class="books-container text-center">
                     <i class="fas fa-book" style="font-size: 4rem; color: #ccc; margin-bottom: 20px;"></i> <!-- Reduced icon size -->
-                    <h4>No books in the library yet.</h4>
-                    <p>Be the first to suggest a book!</p>
+                    <h4>Henüz kütüphanede önerilmiş kitap bulunmuyor..</h4>
+                    <p>İlk kitap önerisini sen yap!</p>
                 </div>
             <?php endif; ?>
         </div>
@@ -897,7 +897,7 @@ $booksJson = json_encode($books);
                 if (title !== '' && author !== '' && isDuplicate(title, author)) {
                     bookTitleInput.classList.add('is-invalid');
                     bookAuthorInput.classList.add('is-invalid');
-                    alert('Note: This book by this author already exists in the library.');
+                    alert('Not: Bu yazarın bu kitabı kütüphanede zaten mevcut. Lütfen farklı bir kitap önerin.');
                 } else {
                     bookTitleInput.classList.remove('is-invalid');
                     bookAuthorInput.classList.remove('is-invalid');
@@ -915,14 +915,14 @@ $booksJson = json_encode($books);
                 // Check if both fields are filled
                 if (title === '' || author === '') {
                     e.preventDefault();
-                    alert('Both book name and author are required!');
+                    alert('Kitap adı ve yazar bilgisi zorunludur! Boş olamaz.');
                     return;
                 }
                 
                 // Check for duplicate
                 if (isDuplicate(title, author)) {
                     e.preventDefault();
-                    alert('Submission blocked: This book by this author is already in the list.');
+                    alert('Bu yazarın bu kitabı zaten listede yer alıyor. Lütfen farklı bir kitap önerin.');
                 }
             });
 
@@ -1004,7 +1004,7 @@ $booksJson = json_encode($books);
                         }
                     });
                     
-                    searchResults.textContent = `Found ${visibleCount} book${visibleCount !== 1 ? 's' : ''}`;
+                    searchResults.textContent = ` ${visibleCount} kitap bulundu${visibleCount !== 1 ? '.' : '.'}`;
                     clearSearchBtn.style.display = 'inline-block';
                 }
                 

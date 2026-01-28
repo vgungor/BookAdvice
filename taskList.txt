@@ -1,0 +1,4 @@
+[done]1- Sitenin Türkçeleştirilmesi 
+1.1- dil opsiyonu(alternatif)
+2- Öneren kişiden kısa bir yorum alınması, kitabı neden öneriyor ya da kitapta ne hoşuna gitti gibi...
+3- Kitap kapak ekleme veya APIden otomatik getirme

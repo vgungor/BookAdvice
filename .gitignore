@@ -3,3 +3,6 @@
 old_files/
 *.log
 *.com
+private/users-raw copy.json
+private/users-old-raw.json
+private/users-initialUploaded.json

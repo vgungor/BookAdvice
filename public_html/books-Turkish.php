@@ -37,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_book']) && $is
             
             // 3. Secure File Write: Use LOCK_EX to prevent corruption
             if (file_put_contents($booksFile, json_encode($books, JSON_PRETTY_PRINT), LOCK_EX)) {
-                $successMessage = 'Kitap kaydı başarı ile silindi :)';
+                $successMessage = 'Book deleted successfully!';
             } else {
-                $errorMessage = 'Kitap silme başarısız!!!.';
+                $errorMessage = 'Failed to delete book.';
             }
         }
     }
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suggest_book'])) {
     $bookAuthor = trim(filter_var($_POST['book_author'] ?? '', FILTER_SANITIZE_STRING));
     
     if (empty($bookTitle) || empty($bookAuthor)) {
-        $errorMessage = 'Kitap adı ve yazar bilgisi zorunludur!';
+        $errorMessage = 'Both book name and author are required!';
     } else {
         $booksFile = 'books.json';
         $books = [];
@@ -63,10 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suggest_book'])) {
             $booksJson = file_get_contents($booksFile);
             $books = json_decode($booksJson, true);
         }
-        
-        // CHANGED: Get optional comment and cover link
-        $bookComment = trim(filter_var($_POST['book_comment'] ?? '', FILTER_SANITIZE_STRING));
-        $coverLink = trim(filter_var($_POST['cover_link'] ?? '', FILTER_SANITIZE_URL));
         
         // Check for duplicate book with same title AND author
         $isDuplicate = false;
@@ -81,11 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suggest_book'])) {
                 break;
             }
         }
-
-        date_default_timezone_set('Europe/Istanbul');
         
         if ($isDuplicate) {
-            $errorMessage = 'Yazarın bu kitabı önerilen kitaplarda zaten mevcut. Lütfen farklı bir kitap önerin.';
+            $errorMessage = 'This book by this author already exists in the library!';
         } else {
             $maxId = 0;
             foreach ($books as $book) {
@@ -98,34 +92,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suggest_book'])) {
             'id' => $maxId + 1,
             'title' => $bookTitle,
             'author' => $bookAuthor,
-            'advicer' => $_SESSION['user_email'],
-            'comment' => $bookComment, 
-            'cover_link' => $coverLink,
-            'year' => null,
-            'genres' => null,
-            'added_date' => date('Y-m-d H:i:s'),
+            'advicer' => $_SESSION['user_email']
         ];
         
         $books[] = $newBook;
         
         // Secure File Write
         if (file_put_contents($booksFile, json_encode($books, JSON_PRETTY_PRINT), LOCK_EX)) {
-            $successMessage = 'Kitap öneriniz başarıyla kaydedildi. Teşekkürler!';
+            $successMessage = 'Book suggested successfully!';
         } else {
-            $errorMessage = 'Kitap önerisi kaydedilemedi. Lütfen tekrar deneyin.';
+            $errorMessage = 'Failed to save book suggestion.';
         }
     }
 } }
 
-// CHANGED: Get view preference with auto-detection support
-// Check URL parameter first (manual selection), otherwise check if it's first load
-$viewMode = isset($_GET['view']) ? $_GET['view'] : null;
-
-// If no view parameter, this might be auto-selection from JavaScript or first load
-// Default to 'cards' - JavaScript will redirect if needed based on screen size
-if ($viewMode === null) {
-    $viewMode = 'cards'; // Default for first load and mobile
-}
+// Get view preference (default to table)
+$viewMode = isset($_GET['view']) ? $_GET['view'] : 'table';
 
 // Read books from JSON file for display and duplicate check
 $booksFile = 'books.json';
@@ -195,7 +177,7 @@ $booksJson = json_encode($books);
             }
 
             .header-section h2 {
-                font-size: 1.8rem; /* CHANGED: Responsive font size */
+                font-size: 1.8rem; /* Responsive font size */
                 margin-bottom: 0.5rem;
             }
 
@@ -579,7 +561,7 @@ $booksJson = json_encode($books);
                 }
             }
             
-            /* CHANGED: Very small screens */
+            /* Very small screens */
             @media (max-width: 576px) {
                 .header-section p {
                     font-size: 0.9rem;
@@ -597,270 +579,14 @@ $booksJson = json_encode($books);
                 }
             }
             
-            /* CHANGED: Improved card grid for different screen sizes */
+            /* Improved card grid for different screen sizes */
             @media (max-width: 576px) {
                 .col-md-6 {
                     padding-left: 7.5px;
                     padding-right: 7.5px;
                 }
             }
-        
-            
-            /* CHANGED: New card layout styles with cover image */
-            .book-card-content {
-                display: flex;
-                gap: 15px;
-                align-items: flex-start;
-            }
-            
-            .book-card-cover {
-                flex-shrink: 0;
-                width: 80px;
-                height: 120px;
-            }
-            
-            .book-card-cover img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 4px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            
-            .book-cover-placeholder {
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-radius: 4px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-size: 2rem;
-            }
-            
-            .book-card-info {
-                flex: 1;
-                min-width: 0;
-            }
-            
-            .book-title-author {
-                margin-bottom: 8px;
-            }
-            
-            .book-name {
-                color: #667eea;
-                font-size: 1.1rem;
-                display: block;
-                margin-bottom: 4px;
-            }
-            
-            .book-author-inline {
-                color: #6c757d;
-                font-size: 0.95rem;
-                font-style: italic;
-            }
-            
-            .book-adviser {
-                margin: 8px 0;
-                font-size: 0.9rem;
-                color: #555;
-            }
-            
-            .book-comment {
-                margin: 10px 0;
-                padding: 10px;
-                background-color: #f8f9fa;
-                border-left: 3px solid #667eea;
-                border-radius: 4px;
-                font-size: 0.9rem;
-                color: #555;
-                line-height: 1.5;
-                /* white-space: pre-wrap;  */
-                word-wrap: break-word; /* CHANGED: Wrap long words */
-            }
-            
-            .book-comment i {
-                color: #667eea;
-                margin-right: 5px;
-            }
-            
-            .book-meta {
-                margin-top: 10px;
-                font-size: 0.85rem;
-                color: #666;
-            }
-            
-            .book-year {
-                margin-right: 10px;
-            }
-            
-            .delete-button-container {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                z-index: 1;
-            }
-            
-            /* CHANGED: Table book cover image styles */
-            .book-cover-clickable {
-                cursor: pointer;
-                transition: transform 0.2s;
-            }
-            
-            .book-cover-clickable:hover {
-                transform: scale(1.05);
-            }
-            
-            .table-book-cover-img {
-                width: 40px;
-                height: 56px;
-                object-fit: cover;
-                border-radius: 4px;
-            }
-            
-            /* CHANGED: Comment column styles */
-            .comment-column {
-                max-width: 300px;
-            }
-            
-            .comment-text {
-                font-size: 0.85rem;
-                color: #555;
-                line-height: 1.4;
-                /* white-space: pre-wrap;  */
-                word-wrap: break-word; /* CHANGED: Wrap long words */
-            }
-            
-            .comment-text i {
-                color: #667eea;
-                margin-right: 5px;
-            }
-            
-            /* CHANGED: Hide comment column on small screens */
-            @media (max-width: 991px) {
-                .comment-column {
-                    display: none;
-                }
-                
-                .book-cover-clickable {
-                    position: relative;
-                }
-                
-                .book-cover-clickable::after {
-                    content: '👁';
-                    position: absolute;
-                    bottom: -5px;
-                    right: -5px;
-                    font-size: 12px;
-                    background: white;
-                    border-radius: 50%;
-                    width: 20px;
-                    height: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                }
-            }
-            
-            /* CHANGED: Modal styles */
-            .modal-comment {
-                font-style: italic;
-                color: #555;
-                padding: 10px;
-                background-color: #f8f9fa;
-                border-left: 3px solid #667eea;
-                border-radius: 4px;
-                white-space: pre-wrap; /* CHANGED: Preserve line breaks in comments */
-                word-wrap: break-word; /* CHANGED: Wrap long words */
-            }
-            
-            .modal-author, .modal-adviser {
-                margin-bottom: 10px;
-            }
-            
-            /* CHANGED: Mobile card adjustments - keep cover on left */
-            @media (max-width: 768px) {
-                .book-card-content {
-                    flex-direction: row; /* CHANGED: Keep horizontal layout on mobile */
-                    gap: 10px; /* CHANGED: Smaller gap on mobile */
-                }
-                
-                .book-card-cover {
-                    width: 80px; /* CHANGED: Fixed width on mobile */
-                    height: 120px; /* CHANGED: Maintain aspect ratio */
-                    flex-shrink: 0; /* CHANGED: Prevent cover from shrinking */
-                }
-                
-                .book-card-info {
-                    flex: 1;
-                    min-width: 0; /* CHANGED: Allow text to wrap properly */
-                }
-                
-                .book-name {
-                    font-size: 1rem;
-                }
-                
-                .book-author-inline {
-                    font-size: 0.9rem;
-                    display: block; /* CHANGED: Stack author below title */
-                    margin-top: 2px;
-                }
-                
-                .book-adviser {
-                    font-size: 0.85rem;
-                    margin: 6px 0;
-                }
-                
-                .book-comment {
-                    font-size: 0.85rem;
-                }
-                
-                .table-book-cover-img {
-                    width: 30px;
-                    height: 42px;
-                }
-            }
-            
-            /* CHANGED: Extra small screens - optimize card layout further */
-            @media (max-width: 480px) {
-                .book-card-content {
-                    gap: 8px;
-                }
-                
-                .book-card-cover {
-                    width: 60px; /* CHANGED: Smaller cover on very small screens */
-                    height: 90px;
-                }
-                
-                .book-name {
-                    font-size: 0.95rem;
-                }
-                
-                .book-author-inline {
-                    font-size: 0.85rem;
-                }
-                
-                .book-adviser {
-                    font-size: 0.8rem;
-                    margin: 4px 0;
-                }
-                
-                .badge-advicer {
-                    font-size: 0.75rem;
-                    padding: 3px 8px;
-                }
-                
-                .book-comment {
-                    font-size: 0.8rem;
-                }
-                
-                .book-meta {
-                    font-size: 0.75rem;
-                }
-            }
-            /* CHANGED: Style for hidden books during search */
+            /* Style for hidden books during search */
             .col-12.hidden {
                 display: none;
             }
@@ -875,7 +601,7 @@ $booksJson = json_encode($books);
             <div class="header-section">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2><i class="fas fa-book"></i>EGE KÜTÜPHANE</h2>
+                        <h2><i class="fas fa-book"></i> EGE KÜTÜPHANE</h2>
                         <p class="mb-0">
                             Merhaba, <?php echo htmlspecialchars($_SESSION['user_email']); ?>
                             <?php if ($isAdmin): ?>
@@ -884,7 +610,7 @@ $booksJson = json_encode($books);
                         </p>
                     </div>
                     <a href="logout.php" class="btn logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+                        <i class="fas fa-sign-out-alt"></i> Çıkış
                     </a>
                 </div>
             </div>
@@ -924,7 +650,7 @@ $booksJson = json_encode($books);
                                     class="form-control" 
                                     id="book_title" 
                                     name="book_title" 
-                                    placeholder="Lütfen Kitap Adı giriniz (Boş olamaz)."
+                                    placeholder="Kitap Adı giriniz (Boş olamaz)"
                                     value="<?php echo isset($_POST['book_title']) && $errorMessage ? htmlspecialchars($_POST['book_title']) : ''; ?>"
                                     required
                                 />
@@ -938,37 +664,9 @@ $booksJson = json_encode($books);
                                     class="form-control" 
                                     id="book_author" 
                                     name="book_author" 
-                                    placeholder="Lütfen en az bir yazar adı giriniz (Boş olamaz)."
+                                    placeholder="Yazar adı/adlarını giriniz (Boş olamaz)"
                                     value="<?php echo isset($_POST['book_author']) && $errorMessage ? htmlspecialchars($_POST['book_author']) : ''; ?>"
                                 />
-                            </div>
-                        </div>
-                        <!-- CHANGED: Added cover link input -->
-                        <!-- <div class="col-md-6 col-12">
-                            <div class="form-group">
-                                <label for="cover_link"><i class="fas fa-image"></i> Cover Image URL</label>
-                                <input 
-                                    type="url" 
-                                    class="form-control" 
-                                    id="cover_link" 
-                                    name="cover_link" 
-                                    placeholder="https://example.com/book-cover.jpg (optional)"
-                                    value="<?php echo isset($_POST['cover_link']) && $errorMessage ? htmlspecialchars($_POST['cover_link']) : ''; ?>"
-                                />
-                                <small class="form-text text-muted">Optional: Link to book cover image</small>
-                            </div>
-                        </div> -->
-                        <!-- CHANGED: Added comment textarea -->
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label for="book_comment"><i class="fas fa-comment"></i> Öneren Yorumu</label>
-                                <textarea 
-                                    class="form-control" 
-                                    id="book_comment" 
-                                    name="book_comment" 
-                                    rows="3" 
-                                    placeholder="Lütfen önerinizi veya yorumunuzu ekleyin (isteğe bağlı)"><?php echo isset($_POST['book_comment']) && $errorMessage ? htmlspecialchars($_POST['book_comment']) : ''; ?></textarea>
-                                <small class="form-text text-muted">Önerinizi veya yorumunuzu ekleyin</small>
                             </div>
                         </div>
                         <div class="col-12">
@@ -981,7 +679,7 @@ $booksJson = json_encode($books);
                     </div>
                 </form>
             </div>
-
+            
                         <!-- Search Section (only shown if more than 10 books) -->
             <?php if ($showSearch): ?>
             <div class="search-section">
@@ -996,30 +694,29 @@ $booksJson = json_encode($books);
                         type="text" 
                         class="form-control border-left-0" 
                         id="searchInput" 
-                        placeholder="Kitap adı/yazar adı ile arama yapın..."
+                        placeholder="Kitap veya Yazar adı ile arama yapılabilir..."
                         style="border-radius: 0 25px 25px 0;"
                     />
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="search-results-info" id="searchResults"></div>
                     <button class="clear-search-btn" id="clearSearch" style="display: none;">
-                        <i class="fas fa-times"></i> Aramayı Temizle
+                        <i class="fas fa-times"></i> Temizle
                     </button>
                 </div>
             </div>
             <?php endif; ?>
-            
             <!-- Books List -->
             <?php if (!empty($books)): ?>
             <div class="books-container">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="mb-0">Önerilen Kitaplar (<span id="bookCount"><?php echo count($books); ?></span>)</h3>
+                    <h3>Önerilen Kitaplar (<span id="bookCount"><?php echo count($books); ?></span>)</h3>
                     <div class="view-toggle">
-                        <a href="?view=cards" class="btn view-btn <?php echo $viewMode === 'cards' ? 'active' : ''; ?>" title="Switch to card view">
-                            <i class="fas fa-th-large"></i> <span class="d-none d-sm-inline">Kart olarak listele</span> <!-- CHANGED: Hide text on very small screens -->
+                        <a href="?view=cards" class="btn view-btn <?php echo $viewMode === 'cards' ? 'active' : ''; ?>">
+                            <i class="fas fa-th-large"></i> Kart olarak listele
                         </a>
-                        <a href="?view=table" class="btn view-btn <?php echo $viewMode === 'table' ? 'active' : ''; ?>" title="Switch to table view">
-                            <i class="fas fa-table"></i> <span class="d-none d-sm-inline">Tablo olarak göster</span> <!-- CHANGED: Hide text on very small screens -->
+                        <a href="?view=table" class="btn view-btn <?php echo $viewMode === 'table' ? 'active' : ''; ?>">
+                            <i class="fas fa-table"></i> Tablo olarak göster
                         </a>
                     </div>
                 </div>
@@ -1033,10 +730,9 @@ $booksJson = json_encode($books);
                                     <th>Kapak</th>
                                     <th>Kitap Adı</th>
                                     <th>Yazar(lar)</th>
-                                    <th>Tavsiye Eden</th>
-                                    <!-- <th>Year</th>
-                                    <th>Genre</th> -->
-                                    <th class="comment-column">Yorum</th> <!-- CHANGED: Added comment column, hidden on small screens -->
+                                    <th>Öneren</th>
+                                    <!-- <th>Basım Yılı</th>
+                                    <th>Tür</th> -->
                                     <?php if ($isAdmin): ?>
                                         <th></th>
                                     <?php endif; ?>
@@ -1044,36 +740,11 @@ $booksJson = json_encode($books);
                             </thead>
                             <tbody id="booksTableBody">
                                 <?php foreach ($books as $book): ?>
-                                    <tr data-title="<?php echo htmlspecialchars(strtolower($book['title'])); ?>" 
-                                        data-author="<?php echo htmlspecialchars(strtolower($book['author'] ?? '')); ?>"
-                                        data-comment="<?php echo htmlspecialchars($book['comment'] ?? ''); ?>"
-                                        data-book-title="<?php echo htmlspecialchars($book['title']); ?>">
-                                        <!-- CHANGED: Clickable book cover with image support -->
+                                    <tr data-title="<?php echo htmlspecialchars(strtolower($book['title'])); ?>" data-author="<?php echo htmlspecialchars(strtolower($book['author'] ?? '')); ?>">
                                         <td>
-                                            <?php if (!empty($book['cover_link'])): ?>
-                                                <div class="book-cover-clickable" 
-                                                     data-book-title="<?php echo htmlspecialchars($book['title']); ?>"
-                                                     data-book-author="<?php echo htmlspecialchars($book['author'] ?? ''); ?>"
-                                                     data-book-comment="<?php echo htmlspecialchars($book['comment'] ?? 'Yorum bulunmuyor...'); ?>"
-                                                     data-book-adviser="<?php echo htmlspecialchars($book['advicer'] ?? ''); ?>"
-                                                     title="Detay için göz sembolünü tıklayınız (mobile)">
-                                                    <img src="<?php echo htmlspecialchars($book['cover_link']); ?>" 
-                                                         alt="<?php echo htmlspecialchars($book['title']); ?>" 
-                                                         class="table-book-cover-img"
-                                                         onerror="this.parentElement.innerHTML='<div class=\'book-cover\'><i class=\'fas fa-book\'></i></div>';">
-                                                </div>
-                                            <?php else: ?>
-                                                <div class="book-cover-clickable" 
-                                                     data-book-title="<?php echo htmlspecialchars($book['title']); ?>"
-                                                     data-book-author="<?php echo htmlspecialchars($book['author'] ?? ''); ?>"
-                                                     data-book-comment="<?php echo htmlspecialchars($book['comment'] ?? 'Yorum bulunmuyor...'); ?>"
-                                                     data-book-adviser="<?php echo htmlspecialchars($book['advicer'] ?? ''); ?>"
-                                                     title="Detay için göz sembolünü tıklayınız (mobile)">
-                                                    <div class="book-cover">
-                                                        <i class="fas fa-book"></i>
-                                                    </div>
-                                                </div>
-                                            <?php endif; ?>
+                                            <div class="book-cover">
+                                                <i class="fas fa-book"></i>
+                                            </div>
                                         </td>
                                         <td>
                                             <strong><?php echo htmlspecialchars($book['title']); ?></strong>
@@ -1083,7 +754,7 @@ $booksJson = json_encode($books);
                                                 if (!empty($book['author'])) {
                                                     echo htmlspecialchars($book['author']);
                                                 } else {
-                                                    echo '<em class="text-muted">Yazar bilinmiyor</em>';
+                                                    echo '<em class="text-muted">Not specified</em>';
                                                 }
                                             ?>
                                         </td>
@@ -1110,24 +781,13 @@ $booksJson = json_encode($books);
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td> -->
-                                        <!-- CHANGED: Added comment column (hidden on small screens) -->
-                                        <td class="comment-column">
-                                            <?php if (!empty($book['comment'])): ?>
-                                                <div class="comment-text">
-                                                    <i class="fas fa-comment-dots"></i> 
-                                                    <?php echo htmlspecialchars($book['comment']); ?>
-                                                </div>
-                                            <?php else: ?>
-                                                <span class="text-muted"><em>Yorum bulunmuyor...</em></span>
-                                            <?php endif; ?>
-                                        </td>
                                         <?php if ($isAdmin): ?>
                                             <td>
-                                                <form method="POST" action="books.php?view=table" style="display: inline;" onsubmit="return confirm('Kitabı silmek istediğinize emin misiniz?');">
+                                                <form method="POST" action="books.php?view=table" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this book?');">
                                                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                                     <input type="hidden" name="book_id" value="<?php echo $book['id']; ?>">
                                                     <button type="submit" name="delete_book" class="btn delete-btn">
-                                                        <i class="fas fa-trash"></i> <span class="d-none d-md-inline">Kitap Kaydını Sil</span>
+                                                        <i class="fas fa-trash"></i> <span class="d-none d-md-inline">Delete</span>
                                                     </button>
                                                 </form>
                                             </td>
@@ -1144,8 +804,8 @@ $booksJson = json_encode($books);
                             <div class="col-12 col-sm-6 col-lg-6" data-title="<?php echo htmlspecialchars(strtolower($book['title'])); ?>" data-author="<?php echo htmlspecialchars(strtolower($book['author'] ?? '')); ?>">
                                 <div class="book-card">
                                     <?php if ($isAdmin): ?>
-                                        <div class="delete-button-container">
-                                            <form method="POST" action="books.php?view=cards" style="display: inline;" onsubmit="return confirm('Kitabı silmek istediğinize emin misiniz?');">
+                                        <div class="float-right">
+                                            <form method="POST" action="books.php?view=cards" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this book?');">
                                                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                                 <input type="hidden" name="book_id" value="<?php echo $book['id']; ?>">
                                                 <button type="submit" name="delete_book" class="btn btn-sm delete-btn">
@@ -1154,71 +814,33 @@ $booksJson = json_encode($books);
                                             </form>
                                         </div>
                                     <?php endif; ?>
-                                    
-                                    <!-- CHANGED: New card layout with cover image -->
-                                    <div class="book-card-content">
-                                        <!-- Book Cover Image -->
-                                        <?php if (!empty($book['cover_link'])): ?>
-                                            <div class="book-card-cover">
-                                                <img src="<?php echo htmlspecialchars($book['cover_link']); ?>" 
-                                                     alt="<?php echo htmlspecialchars($book['title']); ?> cover" 
-                                                     onerror="this.parentElement.innerHTML='<div class=\'book-cover-placeholder\'><i class=\'fas fa-book\'></i></div>';">
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="book-card-cover">
-                                                <div class="book-cover-placeholder">
-                                                    <i class="fas fa-book"></i>
-                                                </div>
-                                            </div>
+                                    <div class="book-title">
+                                        <i class="fas fa-book-open"></i> <?php echo htmlspecialchars($book['title']); ?>
+                                    </div>
+                                    <div class="book-author">
+                                        <i class="fas fa-user-edit"></i> 
+                                        <?php 
+                                            if (!empty($book['author'])) {
+                                                echo '' . htmlspecialchars($book['author']);
+                                            } else {
+                                                echo '<em>Author not specified</em>';
+                                            }
+                                        ?>
+                                    </div>
+                                    <div class="book-details">
+                                        <?php if (isset($book['year'])): ?>
+                                            <i class="fas fa-calendar-alt"></i> Yayıncı: <?php echo htmlspecialchars($book['year']); ?>
                                         <?php endif; ?>
                                         
-                                        <!-- Book Info -->
-                                        <div class="book-card-info">
-                                            <!-- CHANGED: Title and Author on same line -->
-                                            <div class="book-title-author">
-                                                <strong class="book-name"><?php echo htmlspecialchars($book['title']); ?></strong>
-                                                <span class="book-author-inline">
-                                                    <?php 
-                                                        if (!empty($book['author'])) {
-                                                            echo ' ' . htmlspecialchars($book['author']);
-                                                        } else {
-                                                            echo '<em> </em>';
-                                                        }
-                                                    ?>
-                                                </span>
-                                            </div>
-                                            
-                                            <!-- CHANGED: Adviser below title/author -->
-                                            <?php if (isset($book['advicer'])): ?>
-                                                <div class="book-adviser">
-                                                    <i class="fas fa-user-check"></i> Öneren: 
-                                                    <span class="badge-advicer"><?php echo htmlspecialchars($book['advicer']); ?></span>
-                                                </div>
-                                            <?php endif; ?>
-                                            
-                                            <!-- CHANGED: Comment below adviser -->
-                                            <?php if (!empty($book['comment'])): ?>
-                                                <div class="book-comment">
-                                                    <i class="fas fa-comment-dots"></i> 
-                                                    <em><?php echo htmlspecialchars($book['comment']); ?></em>
-                                                </div>
-                                            <?php endif; ?>
-                                            
-                                            <!-- Additional details -->
-                                            <?php if (isset($book['year']) || isset($book['genre'])): ?>
-                                                <div class="book-meta">
-                                                    <?php if (isset($book['year'])): ?>
-                                                        <span class="book-year">
-                                                            <i class="fas fa-calendar-alt"></i> <?php echo htmlspecialchars($book['year']); ?>
-                                                        </span>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if (isset($book['genre'])): ?>
-                                                        <span class="badge-genre"><?php echo htmlspecialchars($book['genre']); ?></span>
-                                                    <?php endif; ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
+                                        <?php if (isset($book['genre'])): ?>
+                                            <span class="badge-genre ml-2"><?php echo htmlspecialchars($book['genre']); ?></span>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (isset($book['advicer'])): ?>
+                                            <br>
+                                            <i class="fas fa-user-check"></i> Öneren: 
+                                            <span class="badge-advicer"><?php echo htmlspecialchars($book['advicer']); ?></span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -1228,38 +850,11 @@ $booksJson = json_encode($books);
             </div>
             <?php else: ?>
                 <div class="books-container text-center">
-                    <i class="fas fa-book" style="font-size: 4rem; color: #ccc; margin-bottom: 20px;"></i> <!-- CHANGED: Reduced icon size -->
+                    <i class="fas fa-book" style="font-size: 4rem; color: #ccc; margin-bottom: 20px;"></i> <!-- Reduced icon size -->
                     <h4>Henüz kütüphanede önerilmiş kitap bulunmuyor..</h4>
                     <p>İlk kitap önerisini sen yap!</p>
                 </div>
             <?php endif; ?>
-        </div>
-        
-        <!-- CHANGED: Modal for displaying book comments on mobile -->
-        <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="modal-title" id="commentModalLabel">
-                            <i class="fas fa-book"></i> <span id="modalBookTitle" style="color: #667eea;
-            font-size: 2rem;"></span>
-                        </h3>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="modal-author"><strong>Yazar:</strong> <span id="modalBookAuthor"></span></p>
-                        <p class="modal-adviser"><strong>Öneren:</strong> <span id="modalBookAdviser"></span></p>
-                        <hr>
-                        <h6><i class="fas fa-comment-dots"></i> Yorum:</h6>
-                        <p class="modal-comment" id="modalBookComment"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Listeye Dön</button>
-                    </div>
-                </div>
-            </div>
         </div>
         
         
@@ -1269,80 +864,6 @@ $booksJson = json_encode($books);
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
         
         <script>
-            // CHANGED: Auto-select view based on screen size
-            (function() {
-                const currentView = '<?php echo $viewMode; ?>';
-                const urlParams = new URLSearchParams(window.location.search);
-                const hasViewParam = urlParams.has('view');
-                const manualSelection = localStorage.getItem('manualViewSelection');
-                
-                // Function to get appropriate view based on screen width
-                function getAutoView() {
-                    const width = window.innerWidth;
-                    // Mobile: < 768px → Cards
-                    // Tablet/PC: >= 768px → Table
-                    return width < 768 ? 'cards' : 'table';
-                }
-                
-                // Function to redirect to appropriate view
-                function redirectToView(view) {
-                    const url = new URL(window.location);
-                    url.searchParams.set('view', view);
-                    window.location.href = url.toString();
-                }
-                
-                // Only auto-redirect if:
-                // 1. User hasn't manually selected a view (no manualSelection in localStorage)
-                // 2. No view parameter in URL (first load or coming from another page)
-                if (!manualSelection && !hasViewParam) {
-                    const autoView = getAutoView();
-                    if (currentView !== autoView) {
-                        redirectToView(autoView);
-                    }
-                }
-                
-                // Store manual selection when user clicks view buttons
-                document.addEventListener('DOMContentLoaded', function() {
-                    const viewButtons = document.querySelectorAll('.view-btn');
-                    viewButtons.forEach(button => {
-                        button.addEventListener('click', function() {
-                            // Store that user made a manual selection
-                            localStorage.setItem('manualViewSelection', 'true');
-                        });
-                    });
-                    
-                    // Add "Clear auto-selection" option (optional feature)
-                    // User can clear their preference to re-enable auto-selection
-                    window.clearViewPreference = function() {
-                        localStorage.removeItem('manualViewSelection');
-                        location.reload();
-                    };
-                });
-            })();
-            
-            // CHANGED: Event delegation for book cover clicks (handles special characters in comments)
-            document.addEventListener('DOMContentLoaded', function() {
-                // Use event delegation to handle clicks on book covers
-                document.addEventListener('click', function(e) {
-                    const coverElement = e.target.closest('.book-cover-clickable');
-                    if (coverElement) {
-                        const title = coverElement.getAttribute('data-book-title') || 'Bilinmeyen';
-                        const author = coverElement.getAttribute('data-book-author') || 'Bilinmeyen';
-                        const comment = coverElement.getAttribute('data-book-comment') || 'Yorum bulunmuyor...';
-                        const adviser = coverElement.getAttribute('data-book-adviser') || 'Bilinmeyen';
-                        
-                        // Populate modal with book information
-                        document.getElementById('modalBookTitle').textContent = title;
-                        document.getElementById('modalBookAuthor').textContent = author;
-                        document.getElementById('modalBookComment').textContent = comment;
-                        document.getElementById('modalBookAdviser').textContent = adviser;
-                        
-                        // Show the modal
-                        $('#commentModal').modal('show');
-                    }
-                });
-            });
-            
             const booksData = <?php echo $booksJson; ?>;
             const totalBooks = booksData.length;
 
@@ -1376,7 +897,7 @@ $booksJson = json_encode($books);
                 if (title !== '' && author !== '' && isDuplicate(title, author)) {
                     bookTitleInput.classList.add('is-invalid');
                     bookAuthorInput.classList.add('is-invalid');
-                    alert('Not: Yazarın bu kitabı önerilenler listesinde bulunuyor.');
+                    alert('Not: Bu yazarın bu kitabı kütüphanede zaten mevcut. Lütfen farklı bir kitap önerin.');
                 } else {
                     bookTitleInput.classList.remove('is-invalid');
                     bookAuthorInput.classList.remove('is-invalid');
@@ -1394,14 +915,14 @@ $booksJson = json_encode($books);
                 // Check if both fields are filled
                 if (title === '' || author === '') {
                     e.preventDefault();
-                    alert('Kitap adı ve yazar bilgisi girişi zorunludur!');
+                    alert('Kitap adı ve yazar bilgisi zorunludur! Boş olamaz.');
                     return;
                 }
                 
                 // Check for duplicate
                 if (isDuplicate(title, author)) {
                     e.preventDefault();
-                    alert('Gönderim engellendi: Bu yazarın bu kitabı önerilenler listesinde zaten bulunuyor.');
+                    alert('Bu yazarın bu kitabı zaten listede yer alıyor. Lütfen farklı bir kitap önerin.');
                 }
             });
 
@@ -1483,7 +1004,7 @@ $booksJson = json_encode($books);
                         }
                     });
                     
-                    searchResults.textContent = ` ${visibleCount} kitap bulundu${visibleCount !== 1 ? 's' : ''}`;
+                    searchResults.textContent = ` ${visibleCount} kitap bulundu${visibleCount !== 1 ? '.' : '.'}`;
                     clearSearchBtn.style.display = 'inline-block';
                 }
                 

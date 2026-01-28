@@ -1,0 +1,92 @@
+[
+    {
+        "id": 1,
+        "title": "Kitap 2",
+        "author": "",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 2,
+        "title": "Kitap 1",
+        "author": "",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 3,
+        "title": "Kitap 4",
+        "author": "",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 4,
+        "title": "Kitap 7",
+        "author": "Yazar 5, Yazar6",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 5,
+        "title": "Kitap 7",
+        "author": "Yazar 5, Yazar6",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 6,
+        "title": "Kitap 7",
+        "author": "Yazar 5, Yazar6",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 7,
+        "title": "Kitap 8",
+        "author": "Yazar 5, Yazar6",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 8,
+        "title": "Kitap 8",
+        "author": "Yazar 5, Yazar6",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 9,
+        "title": "Kitap 4",
+        "author": "Yazar 3, Yazar 4, Yazar 5",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 10,
+        "title": "Kitap 10",
+        "author": "Yazar 5",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 11,
+        "title": "Kitap 11",
+        "author": "Yazar 11",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 12,
+        "title": "Ali",
+        "author": "Veli",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 13,
+        "title": "1984",
+        "author": "George Orwell",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 14,
+        "title": "Animal Farm",
+        "author": "George Orwell",
+        "advicer": "admin@example.com"
+    },
+    {
+        "id": 15,
+        "title": "Y\u00fcr\u00fcme",
+        "author": "Oru\u00e7 Aruoba",
+        "advicer": "test@example.com"
+    }
+]

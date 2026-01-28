@@ -1,0 +1,14 @@
+# 1. Prevent directory listing (so people can't browse your files)
+Options -Indexes
+
+# 2. Block access to all JSON files
+<Files "*.json">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# 3. Block access to the .htaccess file itself
+<Files ".htaccess">
+    Order Deny,Allow
+    Deny from all
+</Files>

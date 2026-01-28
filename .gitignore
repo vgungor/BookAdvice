@@ -1,0 +1,5 @@
+# Ignore sensitive user data
+private/
+old_files/
+*.log
+*.com
